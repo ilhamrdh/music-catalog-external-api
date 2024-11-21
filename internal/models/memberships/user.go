@@ -11,8 +11,21 @@ type User struct {
 	UpdatedBy string `gorm:"not null"`
 }
 
-type SignUpRequest struct {
-	Email    string `json:"email"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
+type (
+	SignUpRequest struct {
+		Email    string `json:"email"`
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+
+	SignInRequest struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+)
+
+type (
+	SignInResponse struct {
+		AccessToken string `json:"access_token"`
+	}
+)
