@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/ilhamrdh/music-catalog-external-api/internal/models/memberships"
+	"github.com/ilhamrdh/music-catalog-external-api/pkg/jwt"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -34,4 +35,28 @@ func (s *service) SignUp(request memberships.SignUpRequest) error {
 		UpdatedBy: request.Username,
 	}
 	return s.repository.CreateUser(model)
+}
+
+func (s *service) SignIn(request memberships.SignInRequest) (string, error) {
+	user, err := s.repository.GetUser(request.Email, "", 0)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		log.Error().Err(err).Msg("error get user from database")
+		return "", err
+	}
+	if user == nil {
+		log.Error().Err(err).Msg("email invalid")
+		return "", errors.New("email or password invalid")
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
+		log.Error().Err(err).Msg("password invalid")
+		return "", errors.New("email or password invalid")
+	}
+
+	accessToken, err := jwt.GenerateToken(uint64(user.ID), user.Username, s.cfg.Service.SecretJWT)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to create JWT token")
+		return "", err
+	}
+
+	return accessToken, nil
 }
