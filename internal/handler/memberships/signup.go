@@ -5,23 +5,24 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ilhamrdh/music-catalog-external-api/internal/models/memberships"
+	"github.com/ilhamrdh/music-catalog-external-api/internal/models/response"
 )
 
 func (h *Handler) SignUp(c *gin.Context) {
 	var request memberships.SignUpRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"errors": err.Error(),
-		})
+		response.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	err := h.service.SignUp(request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"errors": err.Error(),
-		})
+		response.ErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	c.Status(http.StatusCreated)
+	response := response.Response{
+		Status:  http.StatusCreated,
+		Message: "Register successfully",
+	}
+	c.JSON(http.StatusCreated, response)
 }

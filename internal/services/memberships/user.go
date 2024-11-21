@@ -44,10 +44,11 @@ func (s *service) SignIn(request memberships.SignInRequest) (string, error) {
 		return "", err
 	}
 	if user == nil {
+		log.Error().Err(err).Msg("email invalid")
 		return "", errors.New("email or password invalid")
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
-		log.Error().Err(err).Msg("email or password invalid")
+		log.Error().Err(err).Msg("password invalid")
 		return "", errors.New("email or password invalid")
 	}
 
