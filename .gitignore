@@ -6,3 +6,6 @@ docker-compose.yml
 
 # env
 internal/configs/config.yaml
+
+# makefile
+Makefile
